@@ -1,13 +1,10 @@
 import { useSetRecoilState } from "recoil";
-import { IToDo, toDoState } from "../atoms";
+import { Categories, IToDo, toDoState } from "../atoms";
 
 function ToDo({text, category, id}:IToDo){
   const setToDos = useSetRecoilState(toDoState);
   const onClick = (event:React.MouseEvent<HTMLButtonElement>)=>{
-    
 
- 
-  // console.log("i wanna do", event.currentTarget.name);
   const {currentTarget:{name},}= event;
   console.log("i wanna do", name);
   setToDos((prev)=>{
@@ -20,9 +17,9 @@ function ToDo({text, category, id}:IToDo){
   };
   return  <li>
     <span>{text} </span>
-    {category !== "DOING" && <button name="DOING" onClick={onClick}>Doing</button> }
-    {category !== "TO_DO" && <button name="TO_DO" onClick={onClick}>To Do</button> }
-    {category !== "DONE" && <button name="DONE" onClick={onClick}>Done</button> }
+    {category !== Categories.DOING && <button name={Categories.DOING} onClick={onClick}>Doing</button> }
+    {category !== Categories.TO_DO && <button name={Categories.TO_DO} onClick={onClick}>To Do</button> }
+    {category !== Categories.DONE && <button name={Categories.DONE} onClick={onClick}>Done</button> }
    
    
  
