@@ -1,8 +1,12 @@
 ## React Hook Form
 npx create-react-app myApp --template typescript 혹은 npm install
+
 npm i --save-dev @types/styled-components
+
 npm i styled-components
+
 npm i recoil
+
 npm install react-hook-form
 
 사용하기 쉬운 유효성 검사를 통해 성능이 뛰어나고 유연하며 확장 가능한 form입니다.
