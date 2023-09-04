@@ -25,9 +25,14 @@ register은 name, onBlur, onChange, onClick, ref를 return하는 함수
 ```<input {...register("category")}>``` 하면 register 함수가 반환하는 객체를 input의 props로 사용할 수 있음.
 
   1-1. 항목들에 대해 vaildation종류를 react-hook-form 에게 알려줄수 있다.
-
- - ```<input {...register("toDo", {required:true})} />``` required:true를 주는 것으로!  
-required:true 대신 required:"You must write" 이런식으로 메시지를 써도 됌. 
+ -  ```<input {...register("toDo", {required:true})} />``` required:true를 주는 것으로!
+ -   required:true 대신 ```<input {...register("toDo", {required:"You must write"})} />``` 이런식으로 메시지를 써도 됌.
+ -   ```
+      <input type="text" {...register("toDo",
+        {required:"필수입니다.",
+        minLength:{value:5,message:"너무 짧아요."}})} placeholder="할일을 입력하세요." />
+     ```
+     빈칸일때는 "필수입니다" 메시지, 5자 미만일때는 너무짧아요 메시지
 
     > 그럼 html속성인 ```<input required />```랑 뭐가 다를까?
 
