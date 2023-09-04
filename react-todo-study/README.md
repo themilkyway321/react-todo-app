@@ -18,7 +18,7 @@ input {...register('lastName', { required: true })}
 ```
 https://react-hook-form.com
 
-1. register 함수를 사용한다. 
+<h4>1. register 함수를 사용한다. </h4>
 
 register은 name, onBlur, onChange, onClick, ref를 return하는 함수
 
@@ -43,11 +43,11 @@ register은 name, onBlur, onChange, onClick, ref를 return하는 함수
 
 
 
-2. handleSubmit 함수를 사용한다. 
+<h4>2. handleSubmit 함수를 사용한다. </h4>
 
 handleSubmit 이 수행될 때 Validation Check 해준다. 유효성 검사를 무사히 통과하면 handleSubmit이 받은 onValid함수를 실행해준다. 
 
-3. formState
+<h4>3. formState</h4>
 formState에 errors 객체가 있다. 
 
 - console.log(formState.errors); 하면 에러를 보여준다. 
