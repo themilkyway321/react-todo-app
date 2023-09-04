@@ -301,6 +301,15 @@ export default ToDoList;
     + : 하나 또는 많이
 ```
 
+pattern에 직접적으로 형태를 주던가 혹은 object 형태로 value 형태와 메시지를 줄 수 있음. 
+
+```
+<input type="text" placeholder="Email"
+ {...register("email",{required:"메일을 입력하세요.",pattern:/^[A-Za-z0-9._%+-]+@naver.com$/,})} />
+
+```
+
+
 
 ```
  <input {...register("email", {
