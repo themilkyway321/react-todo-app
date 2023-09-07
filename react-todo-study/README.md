@@ -368,4 +368,208 @@ minLength만 적어줄수도 있고,  메시지도 같이 적어줄 수 있다.
            value:5,
            message: "Your username is too short",
         }})} type="text" placeholder="Username" />
-```        
+```
+
+## todo app
+
+CreateToDo.tsx
+```
+import { useForm } from "react-hook-form";
+import { useRecoilState, useSetRecoilState } from "recoil";
+import { toDoState } from "../atoms";
+
+interface Iform {
+  toDo:string;
+}
+
+function CreateToDo(){
+const setToDos= useSetRecoilState(toDoState); //여기서는 setter 함수가 필요하므로 useSetRecoilState를 썼음. 
+const {register, handleSubmit, setValue}= useForm<Iform>();
+const onValid = ({toDo}:Iform)=>{
+  setToDos((prev)=>[{text:toDo, id:Date.now(), category:"TO_DO"}, ...prev])
+  setValue("toDo", "")
+}
+
+  return(
+    
+    <div>
+      <h1>할일 추가하기</h1>
+      <form onSubmit={handleSubmit(onValid)}>
+        <input type="text" {...register("toDo",
+        {required:"할일을 입력하세요."})} placeholder="할일을 입력하세요." />
+        
+      <br/>
+        <button>추가하기</button>
+      </form>
+     
+    </div>
+  )
+}
+
+export default CreateToDo;
+
+```
+
+
+```
+ setToDos((prev)=>[{text:toDo, id:Date.now(), category:"TO_DO"}, ...prev])
+```
+위의 함수는 새로운 {}object 생성,  ...prev: 이전값을 반환
+
+
+
+ToDo.tsx
+방법 1: onClick에 직접 새로운 카테고리 인자를 넘겨주는 방법으로 하면 아래와 같이 쓸 수 있다. 
+
+```
+import { useSetRecoilState } from "recoil";
+import { IToDo, toDoState } from "../atoms";
+
+function ToDo({text,id,category}:IToDo){
+  const setToDos = useSetRecoilState(toDoState);
+  const onClick = (newCategory:IToDo["category"])=>{
+    setToDos((prev)=>{
+        const targetIndex = prev.findIndex((v)=>v.id === id);
+        const newToDo = {text,id,category:newCategory}
+        return[...prev.slice(0, targetIndex), newToDo, ...prev.slice(targetIndex+1)]       
+    })
+    
+  };
+ 
+  return(
+    <div>
+        <li>{text}</li>
+        {category !== "DOING" && <button onClick={()=>onClick("DOING")}>Doing</button>}
+        {category !== "TO_DO" && <button onClick={()=>onClick("TO_DO")}>To Do</button>}
+        {category !== "DONE" && <button onClick={()=>onClick("DONE")}>Done</button>}
+    </div>
+  );
+}
+export default ToDo;
+
+```
+
+방법 2:  event:React.MouseEvent를 써서 아래와 같이 넘겨줄수도 있다. 
+```
+import { useSetRecoilState } from "recoil";
+import { IToDo, toDoState } from "../atoms";
+
+function ToDo({text,id,category}:IToDo){
+  const setToDos = useSetRecoilState(toDoState);
+  const onClick = (event:React.MouseEvent<HTMLButtonElement>)=>{
+    const {currentTarget:{name}}= event;
+    setToDos((prev)=>{
+        const targetIndex = prev.findIndex((v)=>v.id === id);
+        const newToDo = {text, id, category:name as any}
+        return[...prev.slice(0, targetIndex), newToDo, ...prev.slice(targetIndex+1)]       
+    })
+    
+  };
+ 
+  return(
+    <div>
+        <li>{text}</li>
+        {category !== "DOING" && <button name="DOING" onClick={onClick}>Doing</button>}
+        {category !== "TO_DO" && <button name="TO_DO" onClick={onClick}>To Do</button>}
+        {category !== "DONE" && <button name="DONE" onClick={onClick}>Done</button>}
+    </div>
+  );
+}
+export default ToDo;
+
+```
+
+=>  Array.prototype.findIndex()
+
+findIndex() 메서드는 주어진 판별 함수를 만족하는 배열의 첫 번째 요소에 대한 인덱스를 반환합니다. 만족하는 요소가 없으면 -1을 반환합니다.
+```
+const array1 = [5, 12, 8, 130, 44];
+
+const isLargeNumber = (element) => element > 13;
+
+console.log(array1.findIndex(isLargeNumber));
+// expected output: 3
+```
+https://developer.mozilla.org/ko/docs/Web/JavaScript/Reference/Global_Objects/Array/findIndex
+
+=> Array.prototype.slice()
+slice() 메서드는 어떤 배열의 begin부터 end까지(end 미포함)에 대한 얕은 복사본을 새로운 배열 객체로 반환합니다. 원본 배열은 바뀌지 않습니다.
+end가 생략되면 slice()는 배열의 끝까지(arr.length) 추출합니다.
+```
+const letters = [‘가’, '나', '다', '라', '마'];
+const newLetters = [...letters.slice(0,2),"안녕", ...letters.slice(3)];
+newLetters 결과 : ['가', '나', '안녕', '라', '마']
+```
+
+
+
+
+### recoil의 selector
+:atom은 단순히 배열을 줄 뿐이고,  recoil의 selector를 사용하면 atom의 output 형태를 변형시킬 수 있다
+:selector은 key값과 get function을 받는다
+아래 코드를 보면 atom의 배열 toDoState 와categoryState의 아톰 형태를 가져와서 
+필터로 return 하는 형태를 카테고리별로 return 할수있도록 바꿀 수 있음. 
+atoms.tsx
+```
+export const toDoState = atom<IToDo[]>({
+  key:"toDo",
+  default:[]
+})
+
+export const categoryState = atom({
+  key:"category",
+  default:"TO_DO",
+})
+
+export const toDoSelector =selector({
+  key:"toDoSelector",
+  get:({get})=>{
+    const toDos = get(toDoState);
+    const category = get(categoryState);
+    return toDos.filter(v=>v.category === category);
+  }
+})
+
+```
+ToDoList.tsx
+```
+import { useRecoilState, useRecoilValue } from "recoil";
+import { categoryState, toDoSelector, toDoState } from "../atoms";
+import CreateToDo from "./CreateToDo";
+import ToDo from "./ToDo";
+
+function ToDoList(){
+  const toDos = useRecoilValue(toDoSelector); // 여기서는 값을 읽기만 하면 되므로 useRecoilValue를 썼음. 
+  const [category, setCategory]=useRecoilState(categoryState); //값을 읽고, modifier함수가 필요하므로 useRecoilState를 썼음. 
+  const onInput  =(event:React.FormEvent<HTMLSelectElement>)=>{
+    setCategory(event.currentTarget.value)
+
+  }
+return(
+  <div>
+     <select value={category} onInput={onInput}>
+     <option value="TO_DO">To Do</option>
+     <option value="DOING">Doing</option>
+      <option value="DONE">Done</option>
+     </select>
+    <CreateToDo />
+   
+     <ul>
+        {toDos.map(v=>(
+          <ToDo key={v.id} {...v} />
+        ))}
+      </ul>
+  </div>
+);
+}
+
+export default ToDoList;
+```
+여기서 select 함수에서 onChange 말고 onInput을 사용한 이유:
+onInput 이벤트는 요소의 값이 변경된 직후에 발생하고, onChange는 내용이 변경된 후 요소가 포커스를 잃었을 때 발생하기 때문 
+
+
+useRecoilValue: state값을 리턴
+useSetRecoilState: setter 함수를 리턴
+useRecoilState: state, setter 함수를 모두 리턴
+
