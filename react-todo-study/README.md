@@ -569,7 +569,42 @@ export default ToDoList;
 onInput 이벤트는 요소의 값이 변경된 직후에 발생하고, onChange는 내용이 변경된 후 요소가 포커스를 잃었을 때 발생하기 때문 
 
 
-useRecoilValue: state값을 리턴
-useSetRecoilState: setter 함수를 리턴
-useRecoilState: state, setter 함수를 모두 리턴
+- useRecoilValue: state값을 리턴
+- useSetRecoilState: setter 함수를 리턴
+- useRecoilState: state, setter 함수를 모두 리턴
+
+###  recoil의 selector 내용 추가 
+
+```
+import {atom, selector} from "recoil";
+
+
+export const minuteState = atom({
+  key:"minutes",
+  default:0
+})
+
+export const hourSelector  = selector({
+  key:"hours",
+  get:({get})=>{
+    const minutes = get(minuteState);
+    return minutes / 60
+  },
+  set:({set}, newValue)=>{
+    const minutes = Number(newValue) * 60;
+    set(minuteState, minutes);
+  }
+})
+```
+
+get: 
+다른 atom의 값을 가져와서 그 값을 반환 형태를 바꿀 수 있음 
+
+
+set: - 이 속성이 설정되면 selector는 쓰기 가능한 상태를 반환한다. 첫번째 매개변수로 콜백 객체와 새로 입력 값이 전달된다. 
+위의 코드를 예시로 보면 minuteState 의 atom을 minutes 값으로 바꾼다. 
+
+
+
+https://recoiljs.org/ko/docs/api-reference/core/selector/
 
